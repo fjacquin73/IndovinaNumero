@@ -79,6 +79,14 @@ public class IndoNumeroController {
     	
     	try {
     		int num = Integer.parseInt(numS);
+    		
+    		if (num < 1 || num > NMAX) {
+    			
+    			txtLog.appendText("Valore fuori range\n");
+    			return;	
+    			
+    		}
+    		
     		if (num ==this.segreto) {
     			
     			//ha indovinato e termina la partita
