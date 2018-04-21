@@ -59,6 +59,11 @@ public class IndoNumeroController {
     	boxGioco.setDisable(false);
     	txtCurr.setText(String.format("%d", this.tentativi));
     	txtMax.setText(String.format("%d", this.TMAX));
+    	
+    	txtLog.clear();
+    	txtTentativo.clear();
+    	
+    	txtLog.setText(String.format("Indovina un numero tra %d e %d\n", 1, TMAX));
 
     }
 
@@ -73,9 +78,45 @@ public class IndoNumeroController {
     	}
     	
     	try {
-    	int num = Integer.parseInt(numS);
+    		int num = Integer.parseInt(numS);
+    		if (num ==this.segreto) {
+    			
+    			//ha indovinato e termina la partita
+    			txtLog.appendText("Hai vinto!\n");
+    			// chiudere la partita
+    			boxGioco.setDisable(true);
+    			btnNuova.setDisable(false);
+    			this.inGame = false;
+    			
+    		} else {
+    			//tentativo errato 
+    			this.tentativi++;
+    			txtCurr.setText(String.format("%d", this.tentativi));
+    			
+    			if (this.tentativi==this.TMAX) {
+    				txtLog.appendText(String.format("Hai perso! Il numero era : %d\n", this.segreto));
+    				
+    				boxGioco.setDisable(true);
+        			btnNuova.setDisable(false);
+        			this.inGame = false;
+    				
+    			} else {
+    				if (num<segreto) {
+    					
+    					txtLog.appendText("Troppo basso\n");
+    					
+    				} else {
+    					
+    					txtLog.appendText("Troppo alto\n");
+    					
+    				}
+    			}
+    			
+    		}
+    		
     	} catch (NumberFormatException ex) {
     		txtLog.appendText("Il dato inserito non è numerico\n");
+    		return;
     	}
     	
 
