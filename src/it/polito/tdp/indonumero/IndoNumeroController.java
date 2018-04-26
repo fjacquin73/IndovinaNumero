@@ -15,13 +15,7 @@ import javafx.scene.layout.HBox;
 
 public class IndoNumeroController {
 	
-	private int NMAX = 100;
-	private int TMAX = 7;
-	
-	private int segreto; // numero da indovinare	
-	private int tentativi; // tentativi già fatti
-	
-	private boolean inGame = false;	
+	private Model model;
 
     @FXML // ResourceBundle that was given to the FXMLLoader
     private ResourceBundle resources;
@@ -50,20 +44,17 @@ public class IndoNumeroController {
     @FXML
     void handleNuova(ActionEvent event) {
     	
-    	this.segreto = (int) (Math.random()*NMAX)+1;
-    	
-    	this.tentativi = 0;
-    	this.inGame = true;
+    	model.newGame();
     	
     	btnNuova.setDisable(true);
     	boxGioco.setDisable(false);
-    	txtCurr.setText(String.format("%d", this.tentativi));
-    	txtMax.setText(String.format("%d", this.TMAX));
+    	txtCurr.setText(String.format("%d", model.getTentativi()));
+    	txtMax.setText(String.format("%d", model.getTMAX()));
     	
     	txtLog.clear();
     	txtTentativo.clear();
     	
-    	txtLog.setText(String.format("Indovina un numero tra %d e %d\n", 1, TMAX));
+    	txtLog.setText(String.format("Indovina un numero tra %d e %d\n", 1, model.getNMAX()));
 
     }
 
@@ -80,47 +71,38 @@ public class IndoNumeroController {
     	try {
     		int num = Integer.parseInt(numS);
     		
-    		if (num < 1 || num > NMAX) {
+    		if (!model.valoreValido(num)) {
     			
     			txtLog.appendText("Valore fuori range\n");
     			return;	
     			
     		}
     		
-    		if (num ==this.segreto) {
-    			
-    			//ha indovinato e termina la partita
+    		int risultato = model.tentativo(num);
+        	txtCurr.setText(String.format("%d", model.getTentativi()));
+    		
+    		if (risultato == 0) {
     			txtLog.appendText("Hai vinto!\n");
+    		} else if (risultato < 0) {
+    			txtLog.appendText("Troppo basso\n");
+    		} else {
+    			txtLog.appendText("Troppo alto\n");
+    		}
+    		
+    		if (!model.isInGame()) {
+    			
+    			// la partita è finita (con vittoria a sconfitta)
+    			if (risultato != 0) {
+        			txtLog.appendText("Hai perso!\n");	
+        			txtLog.appendText(String.format("Il numero segreto era: %d\n", model.getSegreto()));
+    			}
+    			
     			// chiudere la partita
     			boxGioco.setDisable(true);
     			btnNuova.setDisable(false);
-    			this.inGame = false;
-    			
-    		} else {
-    			//tentativo errato 
-    			this.tentativi++;
-    			txtCurr.setText(String.format("%d", this.tentativi));
-    			
-    			if (this.tentativi==this.TMAX) {
-    				txtLog.appendText(String.format("Hai perso! Il numero era : %d\n", this.segreto));
-    				
-    				boxGioco.setDisable(true);
-        			btnNuova.setDisable(false);
-        			this.inGame = false;
-    				
-    			} else {
-    				if (num<segreto) {
-    					
-    					txtLog.appendText("Troppo basso\n");
-    					
-    				} else {
-    					
-    					txtLog.appendText("Troppo alto\n");
-    					
-    				}
-    			}
     			
     		}
+    		
     		
     	} catch (NumberFormatException ex) {
     		txtLog.appendText("Il dato inserito non è numerico\n");
@@ -140,5 +122,9 @@ public class IndoNumeroController {
         assert txtLog != null : "fx:id=\"txtLog\" was not injected: check your FXML file 'IndoNumero.fxml'.";
 
     }
+
+	public void setModel(Model model) {
+		this.model = model;
+	}
 }
 
